@@ -16,6 +16,7 @@ RUN apt-get install -y \
     zlib1g-dev \
     sqlite3 \
     libsqlite3-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensões PHP
@@ -28,11 +29,17 @@ RUN docker-php-ext-install \
     mysqli \
     pdo_sqlite
 
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # Definir diretório de trabalho
 WORKDIR /var/www/html
 
 # Copiar os arquivos do LinkStack
 COPY . /var/www/html/
+
+# Instalar dependências do PHP via Composer
+RUN composer install --no-dev --optimize-autoloader
 
 # Preparar pastas do banco SQLite
 RUN mkdir -p /var/www/html/database /data && \
