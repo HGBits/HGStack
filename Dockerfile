@@ -32,7 +32,7 @@ RUN docker-php-ext-install \
 WORKDIR /var/www/html
 
 # Copiar os arquivos do LinkStack
-COPY linkstack/ /var/www/html/
+COPY . /var/www/html/
 
 # Preparar pastas do banco SQLite
 RUN mkdir -p /var/www/html/database /data && \
