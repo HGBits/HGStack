@@ -1,4 +1,4 @@
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -16,18 +16,24 @@ RUN apt-get install -y \
     zlib1g-dev \
     sqlite3 \
     libsqlite3-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     git \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensões PHP
-RUN docker-php-ext-install \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install \
     bcmath \
     intl \
     mbstring \
     pdo \
     pdo_mysql \
     mysqli \
-    pdo_sqlite
+    pdo_sqlite \
+    zip \
+    gd
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
