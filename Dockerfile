@@ -1,23 +1,34 @@
-FROM php:8.2-apache
+FROM php:8.1-apache
 
-# Instala dependências do sistema e extensões PHP necessárias
-RUN apt-get update && apt-get install -y \
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Limpar cache e atualizar
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update --allow-releaseinfo-change
+
+# Instalar pacotes necessários
+RUN apt-get install -y \
     libicu-dev \
     libonig-dev \
     libzip-dev \
     unzip \
     zlib1g-dev \
     sqlite3 \
-    && docker-php-ext-install bcmath intl mbstring pdo pdo_sqlite pdo_mysql mysqli
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copia o projeto para o Apache
-COPY . /var/www/html/
+# Instalar extensões PHP
+RUN docker-php-ext-install \
+    bcmath \
+    intl \
+    mbstring \
+    pdo \
+    pdo_mysql \
+    mysqli \
+    pdo_sqlite
 
-# Dá permissão para que SQLite consiga escrever
-RUN chown -R www-data:www-data /var/www/html/database \
-    && chmod -R 755 /var/www/html/database
+# Para SQLite, também pode ser necessário:
+# RUN docker-php-ext-install sqlite3 pdo_sqlite
 
-# Expõe porta do Apache
-EXPOSE 80
-
-# Start command (o Apache já inicia por padrão)
+WORKDIR /var/www/html
